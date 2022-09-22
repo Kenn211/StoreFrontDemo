@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import HeaderTop from './HeaderTop.vue';
-import Botom from './Botom.vue';
-import axios from 'axios';
+import Bottom from './Bottom.vue';
 
 
 </script>
@@ -11,7 +10,7 @@ import axios from 'axios';
         <div class="container">
             <div class="row d-flex flex-column">
                 <HeaderTop></HeaderTop>
-                <Botom></Botom>
+                <Bottom></Bottom>
             </div>
         </div>
     </div>
