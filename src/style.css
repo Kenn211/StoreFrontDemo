@@ -1,0 +1,25 @@
+body {
+  box-sizing: border-box;
+  color: #43454b;
+  font-family: sans-serif;
+  text-rendering: optimizeLegibility;
+  font-weight: 400;
+}
+
+a{
+  text-decoration: none;
+}
+
+ul{
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  list-style: none;
+}
+
+button {
+  outline: none;
+  border: none;
+}
