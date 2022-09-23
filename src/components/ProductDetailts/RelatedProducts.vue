@@ -4,8 +4,8 @@
 
 <template>
     <div class="container">
-        <div class="row px-5 mx-5 d-flex flex-column">
-            <section class="col-9 products-recent_category">
+        <div class="row d-flex flex-column">
+            <section class="col-xl-9 col-sm-12 products-recent_category">
                 <h2 class="products-recent_title mt-5">Related products</h2>
                 <div class="products-recent">
                     <div class="banner__product">
@@ -97,6 +97,14 @@
     display: grid;
     grid-template-columns: 32.6% 32.6% 32.6%;
     grid-gap:2%;
+}
+
+@media only screen and (max-width: 578px) {
+    .products-recent{
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap:0;
+}
 }
 .banner__product{
     cursor: pointer;

@@ -1,73 +1,77 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
 import { Products, Cart } from '../interfaces/interface';
-import MayLike from './MayLike.vue';
-import RelatedProducts from './RelatedProducts.vue';
+import MayLike from '../components/ProductDetailts/MayLike.vue';
+import RelatedProducts from '../components/ProductDetailts/RelatedProducts.vue';
 import { useRoute } from "vue-router";
-import Header from '../Header/Header.vue';
+import Header from '../components/Header/Header.vue';
 
 const {
     params: { idProduct }
 } = useRoute();
 
 //Get API products
-const listDetailsProduct = reactive<Products>({
+const listDetailsProduct = ref<Products>({
     id: 0,
     price: 0,
-})
-axios.get('http://localhost:3000/products/' + idProduct)
-    .then((response) => response.data)
-    .then((data: Products) => {
-        Object.assign(listDetailsProduct, data);
-    })
-    .catch((error) => {
-        console.log(error);
-    });
+});
+(async () => {
+    try {
+        const res = await axios.get(`http://localhost:3000/products/${idProduct}`);
+        listDetailsProduct.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+})()
+
 
 //Get API cart
 let cart = ref<Cart[]>([]);
-axios
-    .get("http://localhost:3000/cart")
-    .then((response) => {
-        cart.value = response.data;
-    })
-    .catch((error) => {
-        console.log(error);
-    });
-
+(async () => {
+    try {
+        const res = await axios.get(`http://localhost:3000/cart`);
+        cart.value = res.data
+    } catch (error) {
+        console.error(error);
+    }
+})();
 
 
 const quantityDetailsProduct = ref<number>(1)
 //Handle add to cart
-function addToCartDetails() {
-    const currentCartItem = cart.value.filter((cart) => cart.id === listDetailsProduct.id);
-    let cartUpdate: Cart = {
-        id: listDetailsProduct.id,
-        price: 0,
-    };
-    if (currentCartItem.length > 0) {
-        cart.value = cart.value.map((cart) => {
-            if (cart.id === currentCartItem[0].id) {
-                cartUpdate = {
-                    ...cart,
-                    quantity: (cart.quantity || 0) + quantityDetailsProduct.value,
-                };
-                return cartUpdate;
-            }
-            return cart;
-        });
-        axios.patch(
-            "http://localhost:3000/cart/" + currentCartItem[0].id,
-            cartUpdate
-        );
-    } else {
-        axios.post("http://localhost:3000/cart", {
-            ...listDetailsProduct,
-            quantity: quantityDetailsProduct,
-        });
+async function addToCartDetails() {
+    try {
+        const currentCartItem = cart.value.filter((cart) => cart.id === listDetailsProduct.value.id);
+        let cartUpdate: Cart = {
+            id: listDetailsProduct.value.id,
+            price: 0,
+        };
+        if (currentCartItem.length > 0) {
+            cart.value = cart.value.map((cart) => {
+                if (cart.id === currentCartItem[0].id) {
+                    cartUpdate = {
+                        ...cart,
+                        quantity: (cart.quantity || 0) + quantityDetailsProduct.value,
+                    };
+                    return cartUpdate;
+                }
+                return cart;
+            });
+            await axios.patch(`${`http://localhost:3000/cart/`}${currentCartItem[0].id}`, cartUpdate);
+
+        } else {
+            axios.post("http://localhost:3000/cart", {
+                ...listDetailsProduct,
+                quantity: quantityDetailsProduct,
+            });
+        }
+        forceRerender();
+    } catch (error) {
+        console.log(error);
     }
-    forceRerender();
+
 }
 
 //re-render Header Component
@@ -75,9 +79,6 @@ const componentKey = ref(0);
 const forceRerender = () => {
     componentKey.value++
 }
-
-
-
 </script>
 
 <template>
@@ -86,7 +87,7 @@ const forceRerender = () => {
         <div class="container">
 
             <!------------------------------------------------------------------>
-            <div class="row px-5 mx-5 d-flex">
+            <div class="row d-flex">
                 <div class="d-flex pagecart-content_header">
                     <div><i class="fas fa-home home-icon"></i></div>
                     <span>Home</span>
@@ -107,19 +108,19 @@ const forceRerender = () => {
 
             <!------------------------------------------------------------------>
 
-            <div class="row px-5 mx-5 d-flex">
-                <div class="col-4">
+            <div class="row product-details-content">
+                <div class="col-xl-4 col-md-5">
                     <div>
-                        <img class="rounded" src="../../assets/T_7_front.webp" alt="" />
+                        <img class="rounded" src="../assets/T_7_front.webp" alt="" />
                     </div>
 
                     <div class="my-2">
-                        <img class="rounded mx-5" src="../../assets/T_7_front.webp" width="15%" alt="">
-                        <img class="rounded mx-5" src="../../assets/T_7_back.webp" width="15%" alt="">
+                        <img class="rounded mx-5" src="../assets/T_7_front.webp" width="15%" alt="">
+                        <img class="rounded mx-5" src="../assets/T_7_back.webp" width="15%" alt="">
                     </div>
                 </div>
 
-                <div class="col-5 desc-title">
+                <div class="col-xl-5 col-md-5 desc-title">
                     <h1>{{listDetailsProduct.names}}</h1>
 
                     <div class="desc-title_icon_star">
@@ -161,7 +162,7 @@ const forceRerender = () => {
 
             <!------------------------------------------------------------------>
             <hr />
-            <div class="row px-5 mx-5">
+            <div class="row">
                 <div class="col-9 d-flex">
                     <div class="d-flex flex-column">
                         <div class="description">
@@ -258,7 +259,7 @@ const forceRerender = () => {
 }
 
 .desc-submit button {
-    width: 25%;
+    width: 30%;
     height: 40px;
     margin-left: 10px;
     color: #fff;
@@ -286,5 +287,16 @@ const forceRerender = () => {
 
 .review {
     padding: 20px 30px 20px 0px;
+}
+
+.product-details-content {
+    display: flex;
+}
+
+
+@media only screen and (max-width: 1000px) {
+    .product-details-content {
+        justify-content: space-between;
+    }
 }
 </style>

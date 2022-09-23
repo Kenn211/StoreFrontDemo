@@ -1,60 +1,21 @@
 <script setup lang="ts">
-import { reactive, Ref, ref } from "vue";
-import { Cart } from "../interfaces/interface";
+import { ref } from "vue";
+import { Cart } from "../interfaces/interface"
 import axios from "axios";
-import Header from '../Header/Header.vue';
-
+import Header from '../components/Header/Header.vue';
 
 let cart = ref<Cart[]>([]);
 //Get API cart
-axios
-    .get("http://localhost:3000/cart")
-    .then((response) => {
-        cart.value = response.data;
+(async () => {
+    try {
+        const res = await axios.get(`http://localhost:3000/cart`);
+        cart.value = res.data
+
         getSubTotal();
-    })
-    .catch((error) => {
-        console.log(error);
-    });
-
-
-//Handle delete item cart
-function handleDeleteItemCart(id: number): void {
-
-    axios.delete("http://localhost:3000/cart/" + id);
-
-    cart.value = cart.value.filter((item) => {
-        if (item.id === id) {
-            undoProduct.value = item;
-        }
-        return item.id != id;
-    });
-
-    undoDelete.value = true
-    updateStatusButton.value = false;
-    showAlertCouponIncorrect.value = false;
-    showAlertCoupon.value = false;
-    updateAlert.value = false;
-
-    forceRerender();
-    getSubTotal();
-}
-
-
-let updateAlert = ref<boolean>(false);
-//Handle update item cart
-function handleUpdateItemCart(): void {
-    for (let index = 0; index < cart.value.length; index++) {
-        axios.patch(
-            "http://localhost:3000/cart/" + cart.value[index].id, cart.value[index]
-        );
+    } catch (error) {
+        console.error(error);
     }
-    updateAlert.value = true;
-
-    getSubTotal();
-    forceRerender();
-}
-
+})();
 
 //get SubTotal
 let subTotal = ref<number>(0);
@@ -63,12 +24,31 @@ function getSubTotal() {
     cart.value.map((item) => {
         subTotal.value += item.price * (item.quantity || 0);
     });
+    console.log(subTotal.value);
 }
 
-//status button update
-let updateStatusButton = ref<boolean>(true);
-function handleUpdateStatus(): void {
-    updateStatusButton.value = false;
+//Handle delete item cart
+async function handleDeleteItemCart(id: number) {
+    try {
+        await axios.delete(`http://localhost:3000/cart/${id}`);
+        cart.value = cart.value.filter((item) => {
+            if (item.id === id) {
+                undoProduct.value = item;
+            }
+            return item.id != id;
+        });
+
+        undoDelete.value = true
+        updateStatusButton.value = false;
+        showAlertCouponIncorrect.value = false;
+        showAlertCoupon.value = false;
+        updateAlert.value = false;
+
+        forceRerender();
+        getSubTotal();
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 //Undo Delete
@@ -77,13 +57,43 @@ let undoProduct = ref<Cart>({
     id: 0,
     price: 0
 });
-function undo(): void {
-    axios.post("http://localhost:3000/cart", undoProduct.value)
-    cart.value.push(undoProduct.value);
-    undoDelete.value = false;
-    forceRerender();
+async function undo() {
+    try {
+        await axios.post(`http://localhost:3000/cart`, undoProduct.value)
+        cart.value.push(undoProduct.value);
+
+        undoDelete.value = false;
+
+        forceRerender();
+    } catch (error) {
+        console.error(error);
+    }
 }
 
+
+let updateAlert = ref<boolean>(false);
+//Handle update item cart
+async function handleUpdateItemCart() {
+    try {
+        for (let index = 0; index < cart.value.length; index++) {
+            await axios.patch(`${`http://localhost:3000/cart/`}${cart.value[index].id}`, cart.value[index]);
+        }
+
+        updateAlert.value = true;
+
+        getSubTotal();
+        forceRerender();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+//status button update
+let updateStatusButton = ref<boolean>(true);
+function handleUpdateStatus(): void {
+    updateStatusButton.value = false;
+}
 
 //coupon Code
 let couponCode = ref<string>('');
@@ -96,10 +106,8 @@ function handleCoupon(): void {
     } else {
         showAlertCoupon.value = false;
         showAlertCouponIncorrect.value = true;
-
     }
 }
-
 
 //Re-render header
 const componentKey = ref(0);
@@ -112,7 +120,7 @@ const forceRerender = () => {
     <Header :key="componentKey"></Header>
     <div class="pageCart">
         <div class="container">
-            <div class="row px-5 mx-5 d-flex flex-column">
+            <div class="row d-flex flex-column">
                 <div class="col">
                     <div class="d-flex pagecart-content_header">
                         <div><i class="fas fa-home home-icon"></i></div>
@@ -165,7 +173,7 @@ const forceRerender = () => {
                                                     style="color: gray"></i></a>
                                         </td>
                                         <td>
-                                            <img src="../../assets/T_7_front.webp" style="width: 50%; height: 100%"
+                                            <img src="../assets/T_7_front.webp" style="width: 50%; height: 100%"
                                                 alt="" />
                                         </td>
                                         <td>

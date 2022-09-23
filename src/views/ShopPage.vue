@@ -2,37 +2,36 @@
 import { ref } from "vue";
 import { Products, Cart } from "../interfaces/interface";
 import axios from "axios";
-import Header from "../Header/Header.vue";
+import Header from "../components/Header/Header.vue";
 
 
 const allProducts = ref<Products[]>([]);
 //Get API products
-axios
-    .get("http://localhost:3000/products")
-    .then((response) => {
-        allProducts.value = response.data;
-        console.log(response.data);
-    })
-    .catch((error) => {
-        console.log(error);
-    });
-
+(async () => {
+    try {
+        const res = await axios.get(`http://localhost:3000/products`);
+        allProducts.value = res.data
+    } catch (error) {
+        console.log(error)
+    }
+})()
 
 const cart = ref<Cart[]>([]);
 //Get API Cart
-axios
-    .get("http://localhost:3000/cart")
-    .then((response) => {
-        cart.value = response.data;
-    })
-    .catch((error) => {
-        console.log(error);
-    });
+(async () => {
+    try {
+        const res = await axios.get(`http://localhost:3000/cart`);
+        cart.value = res.data
+    } catch (error) {
+        console.error(error);
+    }
+})();
 
 
 //Handle Add to Cart
-function handleAddToCart(item: Products): void {
-    const currentCartItem = cart.value.filter((cart) => cart.id === item.id);
+async function handleAddToCart(item: Products) {
+    try {
+        const currentCartItem = cart.value.filter((cart) => cart.id === item.id);
     let cartUpdate: Cart = {
         id: item.id,
         price: 0,
@@ -49,24 +48,98 @@ function handleAddToCart(item: Products): void {
             }
             return cart;
         });
-        axios.patch(
-            "http://localhost:3000/cart/" + currentCartItem[0].id,
-            cartUpdate
-        );
+        await axios.patch(`${`http://localhost:3000/cart/`}${currentCartItem[0].id}`, cartUpdate);
     } else {
-        axios.post("http://localhost:3000/cart", {
-            ...item,
-            quantity: 1,
-        });
-
-        cart.value.push({
+        await axios.post(`http://localhost:3000/cart`, {
             ...item,
             quantity: 1,
         });
     }
 
     forceRerender();
+    
+    } catch (error) {
+        console.error(error);
+    }
 }
+
+//Handle show product if category = Clothing
+async function handleShowClothing() {
+    try {
+        const res =  await axios.get(`http://localhost:3000/products?category=Clothing`);
+        allProducts.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//Handle show product if category = Electronics
+async function handleShowElectronics(){
+    try {
+        const res =  await axios.get(`http://localhost:3000/products?category=Electronics`);
+        allProducts.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//Handle show product if category = Kitchen
+async function handleShowKitchen(){
+    try {
+        const res =  await axios.get(`http://localhost:3000/products?category=Kitchen`);
+        allProducts.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//Handle show product if category = Music
+async function handleShowMusic(){
+    try {
+        const res =  await axios.get(`http://localhost:3000/products?category=Music`);
+        allProducts.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//Handle show product if category = Posters
+async function handleShowPosters(){
+    try {
+        const res =  await axios.get(`http://localhost:3000/products?category=Posters`);
+        allProducts.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//Handle show product if category = Scuba gear
+async function handleShowScubaGear(){
+    try {
+        const res =  await axios.get(`http://localhost:3000/products?category=Scuba Gear`);
+        allProducts.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//Handle show product if category = Sweatshirts
+async function handleShowSweatshirts(){
+    try {
+        const res =  await axios.get(`http://localhost:3000/products?category=Sweatshirts`);
+        allProducts.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 
 //Show btn View-Cart
 interface ShowViewCart {
@@ -100,6 +173,10 @@ function handleShowViewCartBtn(index: number): void {
 const componentKey = ref(0);
 const forceRerender = () => {
     componentKey.value++
+}
+
+function hanldeFilterPriceAndColor(){
+    alert("Đừng ấn nữa, cái này với color chưa làm. Ấn cái categories ở trên kìa =)))")
 }
 </script>
 
@@ -143,7 +220,7 @@ const forceRerender = () => {
                                     </router-link>
                                 </div>
                                 <div class="img-bg-img">
-                                    <img src="../../assets/scuba.webp" alt="" />
+                                    <img src="../assets/scuba.webp" alt="" />
                                 </div>
                             </div>
                         </div>
@@ -191,8 +268,8 @@ const forceRerender = () => {
                                 <div v-if="index < 16">
                                     <router-link :to="{ name: 'details', params: { idProduct: item.id } }">
                                         <div class="banner__image">
-                                            <img class="image1" src="../../assets/denim-shirt.webp" alt="" />
-                                            <img class="image2" src="../../assets/pink-blouse.webp" alt="" />
+                                            <img class="image1" src="../assets/denim-shirt.webp" alt="" />
+                                            <img class="image2" src="../assets/pink-blouse.webp" alt="" />
                                         </div>
                                     </router-link>
                                     <div class="banner__title">
@@ -255,33 +332,33 @@ const forceRerender = () => {
                     <hr />
                     <div class="filter-categories-list">
                         <ul class="filter-categories-list-ul">
-                            <li class="filter-categories-list_item">
+                            <li  class="filter-categories-list_item">
                                 <i class="fas fa-folder"></i>
-                                <a href="">Clothing</a>
+                                <a @click="handleShowClothing()">Clothing</a>
                             </li>
                             <li class="filter-categories-list_item">
                                 <i class="fas fa-folder"></i>
-                                <a href="">Electronics</a>
+                                <a @click="handleShowElectronics()">Electronics</a>
                             </li>
                             <li class="filter-categories-list_item">
                                 <i class="fas fa-folder"></i>
-                                <a href="">Kitchen</a>
+                                <a @click="handleShowKitchen()">Kitchen</a>
                             </li>
                             <li class="filter-categories-list_item">
                                 <i class="fas fa-folder"></i>
-                                <a href="">Music</a>
+                                <a @click="handleShowMusic()">Music</a>
                             </li>
                             <li class="filter-categories-list_item">
                                 <i class="fas fa-folder"></i>
-                                <a href="">Posters</a>
+                                <a @click="handleShowPosters()">Posters</a>
                             </li>
                             <li class="filter-categories-list_item">
                                 <i class="fas fa-folder"></i>
-                                <a href="">Scuba gear</a>
+                                <a @click="handleShowScubaGear()">Scuba gear</a>
                             </li>
                             <li class="filter-categories-list_item">
                                 <i class="fas fa-folder"></i>
-                                <a href="">Sweatshirts</a>
+                                <a @click="handleShowSweatshirts()">Sweatshirts</a>
                             </li>
                         </ul>
                     </div>
@@ -292,7 +369,7 @@ const forceRerender = () => {
                         <div class="input-range">
                             <input type="range" class="form-range" min="0" max="1500" id="customRange2">
                         </div>
-                        <button class="btn-add-cart">Filter</button>
+                        <button @click="hanldeFilterPriceAndColor()" class="btn-add-cart">Filter</button>
                         <span>Price:$1000</span>
                     </div>
 
@@ -378,7 +455,7 @@ const forceRerender = () => {
 }
 
 .img-bg {
-    background-image: url("../../assets/f9c22c58.jpeg");
+    background-image: url("../assets/f9c22c58.jpeg");
     width: 100%;
     max-height: 443px;
     display: block;
@@ -589,6 +666,7 @@ const forceRerender = () => {
 }
 
 @media only screen and (max-width: 576px) {
+
     .product-shop-bottom,
     .product-shop-top,
     .filter-categories {
@@ -596,15 +674,15 @@ const forceRerender = () => {
     }
 
     .products-recent {
-    display: grid;
-    grid-template-columns: 100%;
-    grid-gap: 0;
-}
+        display: grid;
+        grid-template-columns: 100%;
+        grid-gap: 0;
+    }
 
 
-.img-bg{
-    display: none;
-}
+    .img-bg {
+        display: none;
+    }
 
 }
 </style>

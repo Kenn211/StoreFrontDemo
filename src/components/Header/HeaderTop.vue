@@ -11,26 +11,6 @@
                 <p class="header-top-left_title">WooCommerce</p>
 
             </div>
-            <div class="menu-mobile-header">
-                <div class="menu-mobile-icon"><i class="fas fa-bars">Menu</i></div>
-
-                <div class="menu-mobile">
-                    <ul class="menu-mobile-list">
-                        <li>Home</li>
-                        <li>About this demo</li>
-                        <li>Blog</li>
-                        <li>Cart</li>
-                        <li>Checkout</li>
-                        <li>My Account</li>
-                        <li>Pricing Tables</li>
-                        <li>Reviews</li>
-                        <li>Sample Page</li>
-                        <li>Shop</li>
-                        <li>Single Products</li>
-                    </ul>
-                </div>
-            </div>
-
 
             <div class="header-top-right">
                 <div class="header-top-right_title">
@@ -45,7 +25,6 @@
             </div>
         </div>
 
-        <!--Menu in Mobile-->
 
     </div>
 </template>
@@ -96,42 +75,14 @@
     margin-top: 10px;
 }
 
-.menu-mobile-icon {
-    display: block;
-    width: 80px;
-    height: 40px;
-    background-color: #99a0a7;
-}
-
 .header-top-right {
     display: flex;
 }
 
-.menu-mobile-header {
-    display: none;
-}
-
-.menu-mobile-list {
-    position: relative;
-    width: 100%;
-}
 
 @media (width <=576px) {
     .header-top-right {
         display: none;
     }
-
-    .menu-mobile {
-        display: block;
-    }
-
-    .menu-mobile-list {
-        display: none;
-    }
-
-    .menu-mobile-icon:focus-visible .menu-mobile-list {
-        display: block;
-    }
-
 }
 </style>

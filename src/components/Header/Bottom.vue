@@ -1,39 +1,45 @@
 <script setup lang="ts">
 import axios from "axios";
 import { ref, Ref } from "vue";
-import { Cart } from "../interfaces/interface";
+import { Cart } from "../../interfaces/interface";
 
 //Get API cart
 let cart = ref<Cart[]>([]);
-axios
-  .get("http://localhost:3000/cart")
-  .then((response) => {
-    cart.value = response.data;
+let subTotal: Ref<number> = ref(0);
+
+(async () => {
+  try {
+    const res = await axios.get("http://localhost:3000/cart");
+    cart.value = res.data;
 
     subTotal.value = 0;
     cart.value.map((item) => {
       subTotal.value += item.price * (item.quantity || 0);
     });
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+
+  } catch (error) {
+    console.error(error);
+  }
+})()
 
 
-let subTotal: Ref<number> = ref(0);
 //Handle delete item cart
-function handleDeleteItemCart(id: number): void {
-  axios.delete("http://localhost:3000/cart/" + id);
-  cart.value = cart.value.filter((item) => {
-    return item.id != id;
-  });
+async function handleDeleteItemCart(id: number) {
+  try {
+    await axios.delete(`http://localhost:3000/cart/${id}`);
+    cart.value = cart.value.filter((item) => {
+      return item.id != id;
+    });
 
-  subTotal.value = 0;
-  cart.value.map((item) => {
-    subTotal.value += item.price * (item.quantity || 0);
-  });
+    subTotal.value = 0;
+    cart.value.map((item) => {
+      subTotal.value += item.price * (item.quantity || 0);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
 }
-
 
 //Get Total Price
 function getTotalPrice() {
@@ -44,7 +50,6 @@ function getTotalPrice() {
   return totalPrice.toFixed(2);
 }
 
-
 //Get Total Quantity
 function getTotalQuantity() {
   let quantity = 0;
@@ -53,14 +58,17 @@ function getTotalQuantity() {
   });
   return quantity;
 }
-
-
 </script>
 
 <template>
   <div class="col header-bottom_categories">
-    <div>
+    <div class="header-bottom_categories_left">
       <ul class="nav">
+        <router-link to="/">
+          <li class="nav-item">
+            <a class="nav-link1" href="#">Home</a>
+          </li>
+        </router-link>
         <li class="nav-item">
           <a class="nav-link1" href="#">Blog</a>
         </li>
@@ -78,6 +86,11 @@ function getTotalQuantity() {
         <li class="nav-item">
           <a class="nav-link1" href="#">Review</a>
         </li>
+        <router-link to="/pagecart">
+          <li class="nav-item">
+            <a class="nav-link1" href="#">Cart</a>
+          </li>
+        </router-link>
       </ul>
     </div>
 
@@ -101,7 +114,7 @@ function getTotalQuantity() {
             <img src="../../assets/cd_5_angle.webp" alt="">
           </div>
           <div class="cart-item-not-empty_price">
-            <span>{{item.quantity}}</span> <span>x</span> <span>${{item.price}}</span>
+            <span>{{item.quantity || 0}}</span> <span>x</span> <span>${{item.price}}</span>
           </div>
         </li>
         <li class="cart-item-empty" v-if="cart.length === 0">No products in the cart.</li>
@@ -127,8 +140,17 @@ function getTotalQuantity() {
   justify-content: space-between;
 }
 
-@media only screen and (max-width: 576px) {
+@media (width <=576px) {
   .header-bottom_categories {
+    display: flex;
+  }
+
+  .header-bottom_categories_left .nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-bottom_categories .cart {
     display: none;
   }
 }
@@ -191,7 +213,7 @@ function getTotalQuantity() {
   display: flex;
 }
 
-.cart-total span:last-child{
+.cart-total span:last-child {
   font-size: 12px;
   margin-left: 10px;
   margin-top: 2.5px;

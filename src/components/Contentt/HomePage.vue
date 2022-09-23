@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
-import { defineProps, ref, Ref, reactive } from "vue";
-import { Products, Cart } from "../interfaces/interface";
+import { defineProps, ref} from "vue";
+import { Products, Cart } from "../../interfaces/interface";
 
 //list Product
 const props = defineProps<{
@@ -11,18 +11,17 @@ const props = defineProps<{
 //list Cart
 const cart = ref<Cart[]>([]);
 //Get API Cart
-axios
-    .get("http://localhost:3000/cart")
-    .then((response) => {
-        cart.value = response.data;
-    })
-    .catch((error) => {
-        console.log(error);
-    });
-
+(async() => {
+    try {
+        const res = await axios.get(`http://localhost:3000/cart`);
+        cart.value = res.data
+    } catch (error) {
+        console.error(error);
+    }
+})();
 
 //Handle Add to Cart
-function handleAddToCart(item: Products): void {
+async function handleAddToCart(item: Products) {
     const currentCartItem = cart.value.filter((cart) => cart.id === item.id);
     let cartUpdate: Cart = {
         id: item.id,
@@ -39,17 +38,9 @@ function handleAddToCart(item: Products): void {
             }
             return cart;
         });
-        axios.patch(
-            "http://localhost:3000/cart/" + currentCartItem[0].id,
-            cartUpdate
-        );
+        await axios.patch(`${`http://localhost:3000/cart/`}${currentCartItem[0].id}`, cartUpdate);
     } else {
-        axios.post("http://localhost:3000/cart", {
-            ...item,
-            quantity: 1,
-        });
-
-        cart.value.push({
+        await axios.post(`http://localhost:3000/cart`, {
             ...item,
             quantity: 1,
         });

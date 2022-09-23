@@ -12,14 +12,16 @@ const allProducts = ref<Products[]>([
     
 ]);
 
-axios.get("http://localhost:3000/products")
-    .then((response) => {
-        allProducts.value = response.data;
-        console.log(response.data)
-    })
-    .catch((error) => { console.log(error); });
+(async() => {
+    try {
+        const res =  await axios.get(`http://localhost:3000/products`);
+        allProducts.value = res.data;
+        console.log(res.data)
+    } catch (error) {
+        console.log(error)
+    }
+})()
 
-console.log(allProducts.value);
 
 //re-render Header Component
 const componentKey = ref(0);
